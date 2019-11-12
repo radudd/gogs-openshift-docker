@@ -63,7 +63,7 @@ objects:
             value: ${DATABASE_SHARED_BUFFERS}
           - name: POSTGRESQL_ADMIN_PASSWORD
             value: ${DATABASE_ADMIN_PASSWORD}
-          image: ' '
+          image: postgresql:${DATABASE_VERSION}
           livenessProbe:
             initialDelaySeconds: 30
             tcpSocket:
@@ -140,6 +140,8 @@ objects:
     host: ${HOSTNAME}
     to:
       name: ${APPLICATION_NAME}
+    tls:
+      termination: edge
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
@@ -278,27 +280,21 @@ objects:
     app.ini: |
       RUN_MODE = prod
       RUN_USER = gogs
-
       [database]
       DB_TYPE  = postgres
       HOST     = ${APPLICATION_NAME}-postgresql:5432
       NAME     = ${DATABASE_NAME}
       USER     = ${DATABASE_USER}
       PASSWD   = ${DATABASE_PASSWORD}
-
       [repository]
       ROOT = /opt/gogs/data/repositories
-
       [server]
       ROOT_URL=http://${HOSTNAME}
       SSH_DOMAIN=${HOSTNAME}
-
       [security]
       INSTALL_LOCK = ${INSTALL_LOCK}
-
       [service]
       ENABLE_CAPTCHA = false
-
       [webhook]
       SKIP_TLS_VERIFY = ${SKIP_TLS_VERIFY}
 parameters:
@@ -340,7 +336,7 @@ parameters:
   value: 12MB
 - displayName: Database version (PostgreSQL)
   name: DATABASE_VERSION
-  value: "9.5"
+  value: "9.6"
 - name: GOGS_VERSION
   displayName: Gogs Version
   description: 'Version of the Gogs container image to be used (check the available version https://hub.docker.com/r/openshiftdemos/gogs/tags)'
